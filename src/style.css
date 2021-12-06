@@ -1,0 +1,31 @@
+.box {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+#tree_block {
+  width: 70%;
+}
+.flex-box {
+  text-align: center;
+  display: flex;
+  justify-content: space-around;
+}
+.flex-box .leaf {
+  border-radius: 10px;
+  max-width: 50px;
+  min-width: 40px;
+  height: 20px;
+  border: 2px solid black;
+}
+.flex-box .leaf.empty {
+  background: black;
+  color: white;
+}
+.flex-box .leaf.searched {
+  border: 3px dashed black;
+}
+.flex-box.margin-height {
+  margin: 20px 0;
+}
+/*# sourceMappingURL=style.css.map */

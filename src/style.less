@@ -1,0 +1,39 @@
+.box {
+  width: 100%;
+
+  display: flex;
+  justify-content: space-between;
+}
+
+#tree_block {
+  width: 70%;
+}
+
+.flex-box {
+  text-align: center;
+
+  display: flex;
+  justify-content: space-around;
+
+  .leaf {
+    border-radius: 10px;
+
+    max-width: 50px;
+    min-width: 40px;
+    height: 20px;
+
+    border: 2px solid black;
+
+    &.empty {
+      background: black;
+      color: white;
+    }
+    &.searched {
+      border: 3px dashed black;
+    }
+  }
+
+  &.margin-height {
+    margin: 20px 0;
+  }
+}
