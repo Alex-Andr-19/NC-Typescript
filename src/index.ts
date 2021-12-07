@@ -1,6 +1,5 @@
 const body: HTMLElement = document.getElementsByTagName("body")[0];
-// @ts-ignore
-const treeBlock: HTMLElement = document.getElementById("tree_block");
+const treeBlock: HTMLElement | null = document.getElementById("tree_block");
 
 class MyNode<T> {
     private readonly _id: number;
@@ -178,22 +177,18 @@ class Tree<T> {
         if (!curNode) {
             return false;
         }
-        const parNode: MyNode<T> | null = curNode.parent;
 
-        if (parNode) {
-            if (!curNode.leftLeaf && !curNode.rightLeaf) {
-                this._linkNewNode(curNode, null);
-            } else if (curNode.leftLeaf && curNode.rightLeaf) {
-                this._delNodeWith2Leaf(curNode);
-            } else {
-                if (curNode.leftLeaf) {
-                    this._linkNewNode(curNode, curNode.leftLeaf);
-                    curNode.leftLeaf.parent = curNode.parent;
-                } else {
-                    this._linkNewNode(curNode, curNode.rightLeaf);
-                    // @ts-ignore
-                    curNode.rightLeaf.parent = curNode.parent;
-                }
+        if (!curNode.leftLeaf && !curNode.rightLeaf) {
+            this._linkNewNode(curNode, null);
+        } else if (curNode.leftLeaf && curNode.rightLeaf) {
+            this._delNodeWith2Leaf(curNode);
+        } else {
+            if (curNode.leftLeaf) {
+                this._linkNewNode(curNode, curNode.leftLeaf);
+                curNode.leftLeaf.parent = curNode.parent;
+            } else if (curNode.rightLeaf) {
+                this._linkNewNode(curNode, curNode.rightLeaf);
+                curNode.rightLeaf.parent = curNode.parent;
             }
         }
 
@@ -219,41 +214,45 @@ class Tree<T> {
     }
 
     private _linkNewNode(node: MyNode<T>, newNode: MyNode<T> | null): void {
-        // @ts-ignore
-        if (node.parent.leftLeaf === node) {
-            // @ts-ignore
-            node.parent.leftLeaf = newNode;
-        } else {
-            // @ts-ignore
-            node.parent.rightLeaf = newNode;
+        if (node.parent) {
+            if (node.parent.leftLeaf === node) {
+                node.parent.leftLeaf = newNode;
+            } else {
+                node.parent.rightLeaf = newNode;
+            }
         }
     }
 
     private _delNodeWith2Leaf(node: MyNode<T>): void {
         const swapNode: MyNode<T> | null = this._findMaxFromMin(node);
 
-        if (swapNode.leftLeaf) {
-            swapNode.leftLeaf.parent = swapNode.parent;
-            // @ts-ignore
-            swapNode.parent.rightLeaf = swapNode.leftLeaf;
-        }
 
         if (swapNode === node.leftLeaf) {
-            // @ts-ignore
-            swapNode.parent.leftLeaf = null;
+            node.leftLeaf = null;
+            console.log("Here!!!");
         } else {
-            // @ts-ignore
-            swapNode.parent.rightLeaf = null;
+            if (swapNode.leftLeaf && swapNode.parent) {
+                swapNode.leftLeaf.parent = swapNode.parent;
+                swapNode.parent.rightLeaf = swapNode.leftLeaf;
+            } else if (swapNode.parent) {
+                swapNode.parent.rightLeaf = null;
+            }
             swapNode.leftLeaf = node.leftLeaf;
-            // @ts-ignore
-            swapNode.leftLeaf.parent = swapNode;
+            if (swapNode.leftLeaf) {
+                swapNode.leftLeaf.parent = swapNode;
+            }
         }
 
         swapNode.rightLeaf = node.rightLeaf;
-        // @ts-ignore
-        swapNode.rightLeaf.parent = swapNode;
+        if (swapNode.rightLeaf) {
+            swapNode.rightLeaf.parent = swapNode;
+        }
 
         swapNode.parent = node.parent;
+
+        if (node === this._root) {
+            this._root = swapNode;
+        }
 
         this._linkNewNode(node, swapNode);
     }
@@ -372,25 +371,35 @@ for (const value of values) {
     tree.append(new MyNode<number>(ids++, value));
 }
 
+function updateVisualiser(newTree: HTMLElement): void {
+    if (treeBlock) {
+        treeBlock.innerHTML = "";
+        treeBlock.appendChild(newTree);
+    }
+}
+
 function addNode(): void {
+    // Object is possibly 'null'
+    // Property 'value' does not exist on type 'HTMLElement'.
     // @ts-ignore
     const valueNewNode: number = Number.parseInt(document.getElementById("new_node").value, 10);
 
     tree.append(new MyNode<number>(ids++, valueNewNode));
-    treeBlock.innerHTML = "";
-    treeBlock.appendChild(treeVisualiser.getTreeSchema());
 }
 
 function delNode(): void {
+    // Object is possibly 'null'
+    // Property 'value' does not exist on type 'HTMLElement'.
     // @ts-ignore
     const nodeID: number = Number.parseInt(document.getElementById("del_node").value, 10);
 
     tree.delByID(nodeID, tree.root);
-    treeBlock.innerHTML = "";
-    treeBlock.appendChild(treeVisualiser.getTreeSchema());
+    updateVisualiser(treeVisualiser.getTreeSchema());
 }
 
 function findNode(): void {
+    // Object is possibly 'null'
+    // Property 'value' does not exist on type 'HTMLElement'.
     // @ts-ignore
     const nodeID: number = Number.parseInt(document.getElementById("find_node").value, 10);
 
@@ -400,6 +409,7 @@ function findNode(): void {
         let lastSearch: number = 0;
         let curSearch: number = 0;
         for (const lvl of treeVisualiser.lvlsList) {
+            // Type 'HTMLCollection' is not an array type or a string type.
             // @ts-ignore
             for (const lvlNode of lvl.children) {
                 if (lvlNode.textContent.split(":")[0] === node.id.toString(10)) {
@@ -418,5 +428,7 @@ function findNode(): void {
 }
 
 window.addEventListener("load", () => {
-    treeBlock.appendChild(treeVisualiser.getTreeSchema());
+    if (treeBlock) {
+        treeBlock.appendChild(treeVisualiser.getTreeSchema());
+    }
 });
